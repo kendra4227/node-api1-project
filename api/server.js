@@ -10,7 +10,23 @@ server.get("/",(req,res)=>{
 
 //Create user 
 server.post("/api/users",(req,res)=>{
-    const userData = req.body
+    const user = req.body
+
+    if (!user.name || !user.bio) {
+        res
+        .status(400)
+        .json({ errorMessage: "Please provide name and bio for the user."})
+    } else {
+        db.insert(user)
+        .then(user => {
+            res.status(201).json(user);
+        })
+        .catch(error => {
+            res.status(500).json({
+                error: "There was an error while saving the user to the database"
+            });
+        });
+    }
 
 
     
@@ -18,8 +34,13 @@ server.post("/api/users",(req,res)=>{
 
 //Return an array of users
 server.get("/api/users",(req,res)=>{
-    const users= db.find()
-    res.json(users)
+    db.find().then(users => {
+        console.log(`Fetching:`,res);
+        res.status(200).json(users);
+        }).catch(error => {
+            res.status(500).json({ message: error });
+        });
+    
     
 })
 //Returns the user object with the specified id
