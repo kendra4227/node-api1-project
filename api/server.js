@@ -56,11 +56,41 @@ server.post("/api/users",(req,res)=>{
 })
 
 //| DELETE | /api/users/:id | Removes the user with the specified `id` and returns the deleted user.  
-
+server.delete("/api/users/:id",async(req,res)=>{
+    try{
+        const {id}= req.params
+        const deletedUser = await User.remove(id)
+        if(!deletedUser){
+            res.status(404).json("User not found")
+        }else{
+        res.status(200).json(deletedUser)
+        }
+    }catch(err){
+        res.status(500).json({message:err.message})
+    }
+})
 
 
 //| PUT    | /api/users/:id | Updates the user with the specified `id` using data from the `request body`. Returns the modified user |
+server.put("/api/users/:id",async(req,res)=>{
+    const {id} = req.params
+    const changes = req.body
+    try{
+        if(!changes.name || !changes.bio){
+            res.status(500).json({message:"The user information could not be modified"})
+        }else{
+        const updatedUser = await User.update(id,changes)
+        if(!updatedUser){
+            res.status(404).json("The user with the specified ID does not exist")
+        }else
+        res.status(200).json(updatedUser)
+  }
+}
+    catch(err){
+        res.status(500).json({message:err.message})
 
+    }
+})
 
 
 
